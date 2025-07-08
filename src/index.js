@@ -68,6 +68,7 @@
   serpArray = serpArray.filter(e => !e.parentElement.style.height)
 
   // Filter Youtube links.
+  // Remove when Crux supports query parameters.
   serpArray = serpArray.filter(e => !e.href.includes('youtube.com/watch') && !e.href.includes('youtube.com/shorts') && !e.href.includes('youtube.com/embed'));
 
   serpArray.forEach(e => {
