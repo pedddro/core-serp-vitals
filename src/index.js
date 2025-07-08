@@ -21,13 +21,15 @@
     }
     .serp-vitals.serp-vitals--experimental:before {
       content: 'Experimental';
-    }
+   }
     .serp-vitals {
       border: 1px solid #dadce0;
       border-radius: 3px;
       width: max-content;
       padding: 1px 4px 2px;
       display:inline-block;
+       /* Added to fix the direction and transform issues */ 
+      transform: scaleY(-1) !important;
     }
     .serp-vitals .serp-vitals-tag {
       border: 1px solid #81868a;
@@ -56,13 +58,17 @@
 
   const urls = []
   // Select the links on the page.
-  let serpArray = [...document.querySelectorAll('#search .g a[data-ved][href^="http"]')]
+  // Update  to 2025 Google Search elements
+  let serpArray = [...document.querySelectorAll('#rso .MjjYud .A6K0A a[data-ved][href^="http"]')]
 
   // Filter media elements from the array by removing any link with an explicity width set.
   serpArray = serpArray.filter(e => !e.style.width)
 
   // Filter large media elements by looking for a height on the parent.
   serpArray = serpArray.filter(e => !e.parentElement.style.height)
+
+  // Filter Youtube links.
+  serpArray = serpArray.filter(e => !e.href.includes('youtube.com/watch') && !e.href.includes('youtube.com/shorts') && !e.href.includes('youtube.com/embed'));
 
   serpArray.forEach(e => {
     urls.push(e.getAttribute('href'))
@@ -79,7 +85,6 @@
 
   const constraints = {
     lcp: { min: 2.5, max: 4 },
-    fid: { min: 0.1, max: 0.3 },
     cls: { min: 0.1, max: 0.25 },
     inp: { min: 0.2, max: 0.5 },
     ttfb: { min: 0.8, max: 1.8 }
@@ -105,26 +110,20 @@
           metric.record.metrics.largest_contentful_paint.percentiles.p75 /= 1000
         }
 
-        if (!metric.record.metrics.first_input_delay) {
-          metric.record.metrics.first_input_delay = { percentiles: { p75: 'N/A' } }
-        } else {
-          metric.record.metrics.first_input_delay.percentiles.p75 /= 1000
-        }
-
         if (!metric.record.metrics.cumulative_layout_shift) {
           metric.record.metrics.cumulative_layout_shift = { percentiles: { p75: 'N/A' } }
         }
 
-        if (!metric.record.metrics.experimental_interaction_to_next_paint) {
-          metric.record.metrics.experimental_interaction_to_next_paint = { percentiles: { p75: 'N/A' } }
+        if (!metric.record.metrics.interaction_to_next_paint) {
+          metric.record.metrics.interaction_to_next_paint = { percentiles: { p75: 'N/A' } }
         } else {
-          metric.record.metrics.experimental_interaction_to_next_paint.percentiles.p75 /= 1000
+          metric.record.metrics.interaction_to_next_paint.percentiles.p75 /= 1000
         }
 
-        if (!metric.record.metrics.experimental_time_to_first_byte) {
-          metric.record.metrics.experimental_time_to_first_byte = { percentiles: { p75: 'N/A' } }
+        if (!metric.record.metrics.time_to_first_byte) {
+          metric.record.metrics.time_to_first_byte = { percentiles: { p75: 'N/A' } }
         } else {
-          metric.record.metrics.experimental_time_to_first_byte.percentiles.p75 /= 1000
+          metric.record.metrics.time_to_first_byte.percentiles.p75 /= 1000
         }
       }
     })
@@ -135,12 +134,12 @@
       <div class="serp-vitals-container">
         <div class="serp-vitals">
           <span class="serp-vitals-tag">LCP</span><span class="${getColor('lcp', metrics[k].record.metrics.largest_contentful_paint.percentiles.p75)}">${metrics[k].record.metrics.largest_contentful_paint.percentiles.p75}</span>
-          <span class="serp-vitals-tag">FID</span><span class="${getColor('fid', metrics[k].record.metrics.first_input_delay.percentiles.p75)}">${metrics[k].record.metrics.first_input_delay.percentiles.p75}</span>
           <span class="serp-vitals-tag">CLS</span><span class="${getColor('cls', metrics[k].record.metrics.cumulative_layout_shift.percentiles.p75)}">${metrics[k].record.metrics.cumulative_layout_shift.percentiles.p75}</span>
+          <span class="serp-vitals-tag">INP</span><span class="${getColor('inp', metrics[k].record.metrics.interaction_to_next_paint.percentiles.p75)}">${metrics[k].record.metrics.interaction_to_next_paint.percentiles.p75}</span>
+
         </div>
         <div class="serp-vitals serp-vitals--experimental">
-          <span class="serp-vitals-tag">INP</span><span class="${getColor('inp', metrics[k].record.metrics.experimental_interaction_to_next_paint.percentiles.p75)}">${metrics[k].record.metrics.experimental_interaction_to_next_paint.percentiles.p75}</span>
-          <span class="serp-vitals-tag">TTFB</span><span class="${getColor('ttfb', metrics[k].record.metrics.experimental_time_to_first_byte.percentiles.p75)}">${metrics[k].record.metrics.experimental_time_to_first_byte.percentiles.p75}</span>
+          <span class="serp-vitals-tag">TTFB</span><span class="${getColor('ttfb', metrics[k].record.metrics.time_to_first_byte.percentiles.p75)}">${metrics[k].record.metrics.time_to_first_byte.percentiles.p75}</span>
         </div>
       </div>
   `)
